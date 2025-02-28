@@ -105,12 +105,12 @@ function showTurn() {
   if (numWhite + numBlack === cells * cells || (!blacDisk && !whiteDisk)) {
     if (numBlack > numWhite) {
       document.getElementById("numBlack").textContent = numBlack + numEmpty;
-      h2.textContent = "黒の勝ち!!";
+      h2.textContent = "あなたの勝ち!!";
       restartBtn();
       showAnime();
     } else if (numBlack < numWhite) {
       document.getElementById("numWhite").textContent = numWhite + numEmpty;
-      h2.textContent = "白の勝ち!!";
+      h2.textContent = "日向の勝ち!!";
       restartBtn();
       showAnime();
     } else {
@@ -124,7 +124,7 @@ function showTurn() {
 
   // 黒のターン
   if (turn && !blacDisk) {
-    h2.textContent = "黒スキップ";
+    h2.textContent = "あなたはスキップ";
     turn = !turn;
     setTimeout(showTurn, 2000);
     return;
@@ -132,7 +132,7 @@ function showTurn() {
 
   // 白のターン
   if (!turn && !whiteDisk) {
-    h2.textContent = "白スキップ";
+    h2.textContent = "日向はスキップ";
     turn = !turn;
     setTimeout(showTurn, 2000);
     return;
