@@ -11,7 +11,8 @@ const modal = document.getElementById("modal");
 document.querySelectorAll(".select").forEach((value) => {
   value.addEventListener("click", start);
 });
-let cells = 8; // マスの数
+let cells = 8; // Default grid size
+let gameStarted = false; // Flag to check if game has started
 
 // スタート画面でマスの数が選択された時の処理
 function start(e) {
@@ -19,6 +20,7 @@ function start(e) {
   board.innerHTML = "";
   init();
   modal.classList.add("hide");
+  gameStarted = true; // Set the flag to true after selecting grid size
 }
 
 // 初期化
@@ -36,6 +38,7 @@ function init() {
     }
     board.appendChild(tr);
   }
+
   // マスの数によって石の初期配置を変える
   switch (cells) {
     case 4:
@@ -76,7 +79,7 @@ function putDisc(x, y, color) {
 
 // 手番などの表示
 function showTurn() {
-  h2.textContent = turn ? "黒の番です" : "白の番です";
+  h2.textContent = turn ? "あなたの番です" : "日向の番です";
   let numWhite = 0,
     numBlack = 0,
     numEmpty = 0;
@@ -115,26 +118,97 @@ function showTurn() {
       restartBtn();
       showAnime();
     }
+    clearHighlights();  // ゲーム終了時にハイライトを消去
     return;
   }
-  if (!blacDisk && turn) {
+
+  // 黒のターン
+  if (turn && !blacDisk) {
     h2.textContent = "黒スキップ";
-    showAnime();
     turn = !turn;
     setTimeout(showTurn, 2000);
     return;
   }
-  if (!whiteDisk && !turn) {
+
+  // 白のターン
+  if (!turn && !whiteDisk) {
     h2.textContent = "白スキップ";
-    showAnime();
     turn = !turn;
     setTimeout(showTurn, 2000);
     return;
   }
+
+  // プレイヤーのターンのときだけハイライト
+  if (gameStarted && turn) {
+    highlightValidMoves(turn ? BLACK : WHITE);
+  }
+
+  // プレイヤーが手を置いた後にハイライトを消去
+  if (!turn) {
+    clearHighlights();
+  }
+
+  // プレイヤーが置いてから1秒後にAIターンを開始
+  if (!turn) {
+    setTimeout(aiTurn, 1000); // AIが置くまで1秒待つ
+  }
+}
+
+// AIのターンを処理
+function aiTurn() {
+  const availableMoves = [];
+  for (let x = 0; x < cells; x++) {
+    for (let y = 0; y < cells; y++) {
+      if (data[y][x] === 0 && checkPut(x, y, WHITE).length > 0) {
+        availableMoves.push([x, y]);
+      }
+    }
+  }
+
+  if (availableMoves.length > 0) {
+    const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    const [x, y] = randomMove;
+    const result = checkPut(x, y, WHITE);
+    result.forEach((value) => {
+      putDisc(value[0], value[1], WHITE);
+    });
+  } else {
+    // AIが置けない場合もスキップし、ゲームを終了させる処理
+    h2.textContent = "AIスキップ";
+    turn = !turn;
+    setTimeout(showTurn, 2000);
+    return;  // AIターンをスキップして次のターンへ
+  }
+
+  turn = !turn;  // AIの後、プレイヤーのターンに戻る
+  highlightValidMoves(BLACK);  // プレイヤーが置ける場所をハイライト
+  showTurn();  // 次のターンに進む
+}
+
+// プレイヤーが置ける場所をハイライト
+function highlightValidMoves(color) {
+  clearHighlights();
+
+  for (let x = 0; x < cells; x++) {
+    for (let y = 0; y < cells; y++) {
+      const result = checkPut(x, y, color);
+      if (result.length > 0) {
+        board.rows[y].cells[x].classList.add("highlight");
+      }
+    }
+  }
+}
+
+// 盤面上のハイライトを消去
+function clearHighlights() {
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach(cell => cell.classList.remove("highlight"));
 }
 
 // マスがクリックされた時の処理
 function clicked() {
+  if (!turn) return; // AIのターン中はクリックできない
+
   const color = turn ? BLACK : WHITE;
   const y = this.parentNode.rowIndex;
   const x = this.cellIndex;
@@ -158,7 +232,6 @@ function checkPut(x, y, color) {
   const opponentColor = color == BLACK ? WHITE : BLACK;
   let tmpReverseDisk = [];
   let reverseDisk = [];
-  // 周囲8方向を調べる配列
   const direction = [
     [-1, 0], // 左
     [-1, 1], // 左下
@@ -170,11 +243,9 @@ function checkPut(x, y, color) {
     [-1, -1], // 左上
   ];
 
-  // すでに置いてある
   if (data[y][x] === BLACK || data[y][x] === WHITE) {
     return [];
   }
-  // 置いた石の周りに違う色の石があるかチェック
   for (let i = 0; i < direction.length; i++) {
     dx = direction[i][0] + x;
     dy = direction[i][1] + y;
@@ -187,7 +258,6 @@ function checkPut(x, y, color) {
     ) {
       tmpReverseDisk.push([x, y]);
       tmpReverseDisk.push([dx, dy]);
-      // 裏返せるかチェック
       while (true) {
         dx += direction[i][0];
         dy += direction[i][1];
@@ -220,7 +290,6 @@ function checkReverse(color) {
   for (let x = 0; x < cells; x++) {
     for (let y = 0; y < cells; y++) {
       const result = checkPut(x, y, color);
-      console.log(result);
       if (result.length > 0) {
         return true;
       }
@@ -242,6 +311,7 @@ function restartBtn() {
     document.location.reload();
   });
 }
+
 function showAnime() {
   h2.animate({ opacity: [0, 1] }, { duration: 500, iterations: 4 });
 }

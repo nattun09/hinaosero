@@ -1,4 +1,5 @@
 body {
+font-family: Arial, sans-serif;
   text-align: center;
 }
 main {
@@ -51,7 +52,7 @@ td.cell {
 .cell div {
   width: 100%;  /* 親要素（セル）の90%を使う */
   height: 100%;
-  border-radius: 50%;
+  border-radius: 0%;
   margin: auto;
 border-radius: 0 !important; 
 }
@@ -74,14 +75,14 @@ border-radius: 0 !important;
 .black {
   background-image: url("black-stone.png"); /* 黒のコマ画像 */
   background-size: cover;
-  width: 200%;
-  height: 200%;
+  width: 250%;
+  height: 250%;
 }
 .white {
   background-image: url("white-stone.png"); /* 白のコマ画像 */
   background-size: cover;
-  width: 200%;
-  height: 200%;
+  width: 250%;
+  height: 250%;
 }
 h2 {
   text-align: center;
@@ -131,4 +132,17 @@ h2 {
 }
 .hide {
   display: none;
+}
+.highlight {
+  background-color: rgba(0, 255, 0, 255); /* 薄い緑色 */
+}
+.cell.highlight {
+  background-color: rgb(218, 220,160);
+}
+img {
+    width: auto; /* 画像のサイズ調整 */
+    height: 400px;
+justify-content: center;
+   display: flex;
+text-align:center;
 }
