@@ -75,14 +75,12 @@ td.cell {
   background-size: cover;
   width: 200%;
   height: 200%;
-  border-radius: 50%;
 }
 .white {
   background-image: url("white-stone.png"); /* 白のコマ画像 */
   background-size: cover;
   width: 200%;
   height: 200%;
-  border-radius: 50%;
 }
 h2 {
   text-align: center;
